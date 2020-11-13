@@ -8,13 +8,17 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import com.cw.sticker.utils.BitmapUtil;
 import com.cw.sticker.view.EditTextDialog;
 import com.cw.sticker.view.ImageEditorView;
 
+import java.io.File;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -33,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        final ConstraintLayout clEditor = findViewById(R.id.clEditor);
         imageEditor = findViewById(R.id.imageEditor);
         findViewById(R.id.btSelectBg).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,6 +74,25 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 imageEditor.clearSelectState();
+            }
+        });
+        findViewById(R.id.btSwitchOriginal).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imageEditor.switchOriginal();
+            }
+        });
+        findViewById(R.id.btSaveStick).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imageEditor.onApplyChanges();
+                clEditor.setDrawingCacheEnabled(true);
+                Bitmap bitmap = clEditor.getDrawingCache();
+                String path = BitmapUtil.saveBitmap(MainActivity.this, bitmap, "test");
+                if (new File(path).exists()) {
+                    Toast.makeText(MainActivity.this, "save success: " + path, Toast.LENGTH_LONG).show();
+                }
+                clEditor.setDrawingCacheEnabled(false);
             }
         });
 

@@ -88,9 +88,6 @@ public class ImageEditorControl {
         }
     }
 
-    void applyChanges(@NonNull Bitmap bitmap) {
-    }
-
     void addText(String text, int color) {
         EditorText editorText = new EditorText(mContext, text, color);
         editorText.actionMove(mClipRect.centerX(), mClipRect.centerY());
@@ -145,15 +142,13 @@ public class ImageEditorControl {
                 mLastX = event.getX();
                 mLastY = event.getY();
                 return;
-            } else if (sticker.isInEditHandleButton(event) && sticker instanceof EditorText) {
-                final EditorText editorText = (EditorText) sticker;
-                EditTextDialog editTextDialog = new EditTextDialog(mContext, editorText.getText());
-                editTextDialog.setOnEditListener(new EditTextDialog.OnEditListener() {
-                    @Override
-                    public void onEditText(String value) {
-                        editorText.setText(value);
-                    }
-                });
+            } else if (sticker.isInEditHandleButton(event)) {
+                mLastX = event.getX();
+                mLastY = event.getY();
+                if (sticker instanceof EditorText) {
+                    EditorText editorText = (EditorText) sticker;
+                    showEditDialog(mContext, editorText);
+                }
                 return;
             } else {
                 sticker.setHelpFrameEnabled(false);
@@ -199,5 +194,15 @@ public class ImageEditorControl {
 
     private float getDeltaY(MotionEvent event) {
         return event.getY() - mLastY;
+    }
+
+    private void showEditDialog(Context context, final EditorText editorText) {
+        EditTextDialog editTextDialog = new EditTextDialog(context, editorText.getText());
+        editTextDialog.setOnEditListener(new EditTextDialog.OnEditListener() {
+            @Override
+            public void onEditText(String value) {
+                editorText.setText(value);
+            }
+        });
     }
 }

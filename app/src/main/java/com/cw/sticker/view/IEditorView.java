@@ -14,11 +14,7 @@ interface IEditorView {
 
     void setClipRect(RectF clipRect);
 
-    void showOriginalImage(boolean display);
-
     void onStickerAdded(List<ISticker> texts);
 
     void updateView();
-
-    void onApplyChanges();
 }

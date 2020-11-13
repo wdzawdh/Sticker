@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
+    android:clipChildren="false"
     tools:context=".MainActivity">
 
     <Button
@@ -30,8 +31,8 @@
         android:id="@+id/rgColor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
         android:layout_margin="10dp"
+        android:gravity="center"
         android:orientation="horizontal">
 
         <RadioButton
@@ -39,96 +40,118 @@
             android:layout_width="19dp"
             android:layout_height="19dp"
             android:layout_margin="10dp"
-            android:checked="true"
-            android:button="@null"
             android:background="#181818"
-            android:foreground="@drawable/selector_color"/>
+            android:button="@null"
+            android:checked="true"
+            android:foreground="@drawable/selector_color" />
 
         <RadioButton
             android:id="@+id/rbColor2"
             android:layout_width="19dp"
             android:layout_height="19dp"
             android:layout_margin="10dp"
-            android:button="@null"
             android:background="#ffffff"
-            android:foreground="@drawable/selector_color"/>
+            android:button="@null"
+            android:foreground="@drawable/selector_color" />
 
         <RadioButton
             android:id="@+id/rbColor3"
             android:layout_width="19dp"
             android:layout_height="19dp"
             android:layout_margin="10dp"
-            android:button="@null"
             android:background="#a5a5a5"
-            android:foreground="@drawable/selector_color"/>
+            android:button="@null"
+            android:foreground="@drawable/selector_color" />
 
         <RadioButton
             android:id="@+id/rbColor4"
             android:layout_width="19dp"
             android:layout_height="19dp"
             android:layout_margin="10dp"
-            android:button="@null"
             android:background="#fdafaf"
-            android:foreground="@drawable/selector_color"/>
+            android:button="@null"
+            android:foreground="@drawable/selector_color" />
 
         <RadioButton
             android:id="@+id/rbColor5"
             android:layout_width="19dp"
             android:layout_height="19dp"
             android:layout_margin="10dp"
-            android:button="@null"
             android:background="#22379d"
-            android:foreground="@drawable/selector_color"/>
+            android:button="@null"
+            android:foreground="@drawable/selector_color" />
 
         <RadioButton
             android:id="@+id/rbColor6"
             android:layout_width="19dp"
             android:layout_height="19dp"
             android:layout_margin="10dp"
-            android:button="@null"
             android:background="#f9ba12"
-            android:foreground="@drawable/selector_color"/>
+            android:button="@null"
+            android:foreground="@drawable/selector_color" />
 
         <RadioButton
             android:id="@+id/rbColor7"
             android:layout_width="19dp"
             android:layout_height="19dp"
             android:layout_margin="10dp"
-            android:button="@null"
             android:background="#d4b4f9"
-            android:foreground="@drawable/selector_color"/>
+            android:button="@null"
+            android:foreground="@drawable/selector_color" />
     </RadioGroup>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.cw.sticker.SquareLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clipChildren="false">
+        android:layout_marginEnd="-20dp"
+        android:layout_marginStart="-20dp">
 
-        <ImageView
-            android:id="@+id/ivBg"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/clEditor"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="-20dp"
-            android:layout_marginStart="-20dp"
-            android:adjustViewBounds="true"
-            android:src="@mipmap/bg_shirt"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:layout_editor_absoluteX="0dp"
-            tools:layout_editor_absoluteY="35dp" />
+            android:layout_height="wrap_content">
 
-        <com.cw.sticker.view.ImageEditorView
-            android:id="@+id/imageEditor"
+            <ImageView
+                android:id="@+id/ivBg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:src="@mipmap/bg_shirt"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.cw.sticker.view.ImageEditorView
+                android:id="@+id/imageEditor"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:text="Hello World!"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHeight_percent="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent="0.5" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.cw.sticker.SquareLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/btSwitchOriginal"
             android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:text="Hello World!"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent="0.5" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="show original" />
+
+        <Button
+            android:id="@+id/btSaveStick"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="save sticker" />
+    </LinearLayout>
 </LinearLayout>

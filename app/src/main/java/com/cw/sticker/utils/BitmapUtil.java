@@ -14,12 +14,33 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
 
+import java.io.File;
 import java.io.FileDescriptor;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.content.res.ResourcesCompat;
 
 public class BitmapUtil {
+
+    public static String saveBitmap(Context ct, Bitmap bitmap, String name) {
+        String savePath = ct.getExternalFilesDir(null) + "/" + name + ".jpg";
+        try {
+            File filePic = new File(savePath);
+            if (!filePic.exists()) {
+                filePic.getParentFile().mkdirs();
+                filePic.createNewFile();
+            }
+            FileOutputStream fos = new FileOutputStream(filePic);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            fos.flush();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return savePath;
+    }
 
     public static Bitmap makeTintBitmap(Bitmap inputBitmap, int tintColor) {
         if (inputBitmap == null) {

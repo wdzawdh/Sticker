@@ -31,6 +31,7 @@ public class ImageEditorView extends View implements IEditorView {
     private PathEffect mBorderEffects = new DashPathEffect(new float[]{10, 10}, 0);
 
     private List<ISticker> mStickerList;
+    private boolean mApply = true;
 
     private boolean mIsOriginalImageDisplayed;
 
@@ -52,8 +53,10 @@ public class ImageEditorView extends View implements IEditorView {
         super.onDraw(canvas);
         if (mClipRect != null) {
             canvas.clipRect(mClipRect);
-            mBorderPaint.setPathEffect(mBorderEffects);
-            canvas.drawRoundRect(mClipRect, 0, 0, mBorderPaint);
+            if (mApply) {
+                mBorderPaint.setPathEffect(mBorderEffects);
+                canvas.drawRoundRect(mClipRect, 0, 0, mBorderPaint);
+            }
         }
         if (mIsOriginalImageDisplayed) {
             if (mImageBitmap != null && mImageMatrix != null) {
@@ -86,12 +89,6 @@ public class ImageEditorView extends View implements IEditorView {
     }
 
     @Override
-    public void showOriginalImage(boolean display) {
-        mIsOriginalImageDisplayed = display;
-        invalidate();
-    }
-
-    @Override
     public void onStickerAdded(List<ISticker> stickers) {
         mStickerList = stickers;
         invalidate();
@@ -103,16 +100,22 @@ public class ImageEditorView extends View implements IEditorView {
     }
 
     @Override
-    public void onApplyChanges() {
-        invalidate();
-        setDrawingCacheEnabled(true);
-        mControl.applyChanges(getDrawingCache());
+    public boolean onTouchEvent(MotionEvent event) {
+        if (mApply) {
+            mControl.viewTouched(event);
+        }
+        return true;
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        mControl.viewTouched(event);
-        return true;
+    public void switchOriginal() {
+        mIsOriginalImageDisplayed = !mIsOriginalImageDisplayed;
+        invalidate();
+    }
+
+    public void onApplyChanges() {
+        mApply = false;
+        mControl.clearSelectState();
+        invalidate();
     }
 
     public void setImageBitmap(@NonNull Bitmap bitmap) {
