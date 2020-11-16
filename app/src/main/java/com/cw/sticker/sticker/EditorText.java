@@ -2,7 +2,9 @@ package com.cw.sticker.sticker;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.text.TextPaint;
@@ -11,6 +13,7 @@ import android.view.MotionEvent;
 import com.cw.sticker.utils.RectUtil;
 import com.cw.sticker.utils.SizeUtils;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 
 import static com.cw.sticker.sticker.EditorFrame.EDITOR_FRAME_PADDING;
@@ -35,17 +38,19 @@ public class EditorText implements ISticker {
     private RectF mResizeAndScaleHandleDstRect;
 
     private String mText;
-    private int mColor;
+    private int mColor = Color.BLACK;
     private float mX;
     private float mY;
     private float mScale = 1;
     private float mRotateAngle = 0;
     private boolean mIsDrawHelperFrame = true;
 
-    public EditorText(Context context, String text, int color) {
+    public EditorText(Context context, String text, @ColorInt int color, RectF clipRect) {
         mEditorFrame = new EditorFrame(context);
         mText = text;
         mColor = color;
+        mX = clipRect.centerX();
+        mY = clipRect.centerY();
         mHelperFramePaint = new Paint(mEditorFrame.getFramePaint());
         initTextPaint();
         initEditorText();
@@ -79,17 +84,37 @@ public class EditorText implements ISticker {
         mTextPaint.setTextAlign(Paint.Align.CENTER);
     }
 
-    public String getText() {
-        return mText;
+    public void setText(String text) {
+        mText = text;
     }
 
-    public void setText(String text){
-        mText = text;
+    public String getText() {
+        return mText;
     }
 
     @Override
     public void setColor(int color) {
         mTextPaint.setColor(color);
+    }
+
+    @Override
+    public int getColor() {
+        return mTextPaint.getColor();
+    }
+
+    @Override
+    public float getRotate() {
+        return mRotateAngle;
+    }
+
+    @Override
+    public PointF getPosition() {
+        return new PointF(mTextRect.centerX(), mTextRect.centerY());
+    }
+
+    @Override
+    public float getScale() {
+        return mScale;
     }
 
     @Override

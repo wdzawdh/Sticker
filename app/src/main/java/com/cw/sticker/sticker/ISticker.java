@@ -1,6 +1,7 @@
 package com.cw.sticker.sticker;
 
 import android.graphics.Canvas;
+import android.graphics.PointF;
 import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
@@ -8,7 +9,15 @@ import androidx.annotation.NonNull;
 public interface ISticker {
     void draw(@NonNull Canvas canvas);
 
+    float getRotate();
+
+    PointF getPosition();
+
+    float getScale();
+
     void setColor(int color);
+
+    int getColor();
 
     void setEditorTouched(boolean isTouched);
 

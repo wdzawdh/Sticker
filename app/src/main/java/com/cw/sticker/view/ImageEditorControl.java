@@ -89,8 +89,7 @@ public class ImageEditorControl {
     }
 
     void addText(String text, int color) {
-        EditorText editorText = new EditorText(mContext, text, color);
-        editorText.actionMove(mClipRect.centerX(), mClipRect.centerY());
+        EditorText editorText = new EditorText(mContext, text, color, mClipRect);
         mStickerList.add(editorText);
         if (mTouchedSticker != null) mTouchedSticker.setHelpFrameEnabled(false);
         mTouchedSticker = mStickerList.get(mStickerList.size() - 1);
@@ -99,6 +98,13 @@ public class ImageEditorControl {
 
     void addImage(Bitmap bitmap) {
         mStickerList.add(new EditorImage(mContext, bitmap, mClipRect));
+        if (mTouchedSticker != null) mTouchedSticker.setHelpFrameEnabled(false);
+        mTouchedSticker = mStickerList.get(mStickerList.size() - 1);
+        getViewState().onStickerAdded(mStickerList);
+    }
+
+    void addImage(Bitmap bitmap, int color) {
+        mStickerList.add(new EditorImage(mContext, bitmap, color, mClipRect));
         if (mTouchedSticker != null) mTouchedSticker.setHelpFrameEnabled(false);
         mTouchedSticker = mStickerList.get(mStickerList.size() - 1);
         getViewState().onStickerAdded(mStickerList);

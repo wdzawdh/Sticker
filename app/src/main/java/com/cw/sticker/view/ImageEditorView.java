@@ -3,6 +3,7 @@ package com.cw.sticker.view;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -32,7 +33,6 @@ public class ImageEditorView extends View implements IEditorView {
 
     private List<ISticker> mStickerList;
     private boolean mApply = true;
-
     private boolean mIsOriginalImageDisplayed;
 
     public ImageEditorView(Context context, AttributeSet attrs) {
@@ -135,6 +135,10 @@ public class ImageEditorView extends View implements IEditorView {
         return mImageBitmap;
     }
 
+    public void addText(String text) {
+        mControl.addText(text, Color.BLACK);
+    }
+
     public void addText(String text, int color) {
         mControl.addText(text, color);
     }
@@ -143,8 +147,20 @@ public class ImageEditorView extends View implements IEditorView {
         mControl.addImage(bitmap);
     }
 
+    public void addImage(Bitmap bitmap, int color) {
+        mControl.addImage(bitmap, color);
+    }
+
     public void clearSelectState() {
         mControl.clearSelectState();
+    }
+
+    public List<ISticker> getSticks() {
+        return mStickerList;
+    }
+
+    public RectF getClipRect(){
+        return mClipRect;
     }
 
     private void drawSticker(Canvas canvas) {

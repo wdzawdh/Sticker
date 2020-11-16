@@ -4,17 +4,27 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.PointF;
+import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.cw.sticker.model.CompoundModel;
+import com.cw.sticker.sticker.EditorImage;
+import com.cw.sticker.sticker.EditorText;
+import com.cw.sticker.sticker.ISticker;
 import com.cw.sticker.utils.BitmapUtil;
 import com.cw.sticker.view.EditTextDialog;
 import com.cw.sticker.view.ImageEditorView;
+import com.google.gson.Gson;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -55,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Bitmap bitmap = BitmapUtil.drawable2Bitmap(MainActivity.this, R.drawable.ic_heart);
-                imageEditor.addImage(BitmapUtil.makeTintBitmap(bitmap, currentColor));
+                imageEditor.addImage(bitmap, currentColor);
             }
         });
         findViewById(R.id.btSelectTextStick).setOnClickListener(new View.OnClickListener() {
@@ -90,9 +100,42 @@ public class MainActivity extends AppCompatActivity {
                 Bitmap bitmap = clEditor.getDrawingCache();
                 String path = BitmapUtil.saveBitmap(MainActivity.this, bitmap, "test");
                 if (new File(path).exists()) {
-                    Toast.makeText(MainActivity.this, "save success: " + path, Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "save success  " + path, Toast.LENGTH_LONG).show();
                 }
                 clEditor.setDrawingCacheEnabled(false);
+
+                //export json
+                CompoundModel compoundModel = new CompoundModel();
+                compoundModel.items = new ArrayList<>();
+                RectF clipRect = imageEditor.getClipRect();
+                List<ISticker> sticks = imageEditor.getSticks();
+                for (ISticker stick : sticks) {
+                    CompoundModel.ItemsBean itemsBean = new CompoundModel.ItemsBean();
+                    float rotate = stick.getRotate();
+                    int color = stick.getColor();
+                    String hexColor = String.format("%06X", (0xFFFFFF & color));
+                    PointF position = stick.getPosition();
+                    float x = position.x / clipRect.width() * 560;
+                    float y = position.y / clipRect.width() * 560;
+                    itemsBean.tint = Integer.parseInt(hexColor, 16);
+                    itemsBean.anchor = new CompoundModel.ItemsBean.AnchorBean(0.5f, 0.5f);
+                    itemsBean.position = new CompoundModel.ItemsBean.PositionBean(x, y);
+                    itemsBean.rotation = Math.toRadians(rotate);
+                    itemsBean.scale = stick.getScale();
+                    itemsBean.fillType = color != -1 ? 1 : 2; //是否填充颜色
+                    if (stick instanceof EditorImage) {
+                        itemsBean.type = 1;
+                        itemsBean.texture = "ic_heart";
+                    }
+                    if (stick instanceof EditorText) {
+                        EditorText editorText = (EditorText) stick;
+                        itemsBean.type = 3;
+                        itemsBean.text = editorText.getText();
+                    }
+                    compoundModel.items.add(itemsBean);
+                }
+                String json = new Gson().toJson(compoundModel);
+                Log.d("Export json  ", json);
             }
         });
 

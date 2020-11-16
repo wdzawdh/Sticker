@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.Log;
@@ -14,6 +15,7 @@ import com.cw.sticker.utils.BitmapUtil;
 import com.cw.sticker.utils.MatrixUtil;
 import com.cw.sticker.utils.RectUtil;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 
 import static com.cw.sticker.sticker.EditorFrame.EDITOR_FRAME_PADDING;
@@ -29,7 +31,7 @@ public class EditorImage implements ISticker {
     private Paint mPaint;
     private Paint mHelperFramePaint;
 
-    private RectF mImageRect;
+    private RectF mClipRect;
     private RectF mDstRect;
     private RectF mFrameRect;
 
@@ -41,24 +43,30 @@ public class EditorImage implements ISticker {
 
     private float mRotateAngle;
     private float mInitWidth;
+    private int mColor = -1;
     private boolean mIsDrawHelperFrame = true;
 
-    public EditorImage(Context context, Bitmap bitmap, RectF imageRect) {
+    public EditorImage(Context context, Bitmap bitmap, RectF clipRect) {
         mEditorFrame = new EditorFrame(context);
         mBitmap = bitmap;
-        mImageRect = imageRect;
+        mClipRect = clipRect;
         mPaint = new Paint();
         mHelperFramePaint = new Paint(mEditorFrame.getFramePaint());
         initialize();
     }
 
+    public EditorImage(Context context, Bitmap bitmap, @ColorInt int color, RectF clipRect) {
+        this(context, BitmapUtil.makeTintBitmap(bitmap, color), clipRect);
+        mColor = color;
+    }
+
     private void initialize() {
         //根据背景RectF设置大小
-        int stickerWidth = Math.min(mBitmap.getWidth(), (int) mImageRect.width() >> 1);
+        int stickerWidth = Math.min(mBitmap.getWidth(), (int) mClipRect.width() >> 1);
         int stickerHeight = stickerWidth * mBitmap.getHeight() / mBitmap.getWidth();
 
-        float left = mImageRect.centerX() - (stickerWidth / 2);
-        float top = mImageRect.centerY() - (stickerHeight / 2);
+        float left = mClipRect.centerX() - (stickerWidth / 2);
+        float top = mClipRect.centerY() - (stickerHeight / 2);
 
         mDstRect = new RectF(left, top, left + stickerWidth, top + stickerHeight);
 
@@ -88,7 +96,28 @@ public class EditorImage implements ISticker {
 
     @Override
     public void setColor(int color) {
+        mColor = color;
         mBitmap = BitmapUtil.makeTintBitmap(mBitmap, color);
+    }
+
+    @Override
+    public int getColor() {
+        return mColor;
+    }
+
+    @Override
+    public float getRotate() {
+        return mRotateAngle;
+    }
+
+    @Override
+    public PointF getPosition() {
+        return new PointF(mDstRect.centerX(), mDstRect.centerY());
+    }
+
+    @Override
+    public float getScale() {
+        return mDstRect.width() / mInitWidth;
     }
 
     @Override
