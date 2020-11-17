@@ -11,7 +11,6 @@ import android.text.TextPaint;
 import android.view.MotionEvent;
 
 import com.cw.sticker.utils.RectUtil;
-import com.cw.sticker.utils.SizeUtils;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -20,12 +19,13 @@ import static com.cw.sticker.sticker.EditorFrame.EDITOR_FRAME_PADDING;
 
 
 public class EditorText implements ISticker {
-    private static final float DEFAULT_TEXT_SIZE = 20;
+    private static final float DEFAULT_TEXT_SIZE = 32;
 
     private EditorFrame mEditorFrame;
     private Paint mHelperFramePaint;
     private TextPaint mTextPaint;
 
+    private RectF mClipRect;
     private Rect mTextRect;
     private RectF mFrameRect;
 
@@ -49,6 +49,7 @@ public class EditorText implements ISticker {
         mEditorFrame = new EditorFrame(context);
         mText = text;
         mColor = color;
+        mClipRect = clipRect;
         mX = clipRect.centerX();
         mY = clipRect.centerY();
         mHelperFramePaint = new Paint(mEditorFrame.getFramePaint());
@@ -80,7 +81,7 @@ public class EditorText implements ISticker {
         mTextPaint.setColor(mColor);
         mTextPaint.setAlpha(255);
 
-        mTextPaint.setTextSize(SizeUtils.dp2px(DEFAULT_TEXT_SIZE));
+        mTextPaint.setTextSize(DEFAULT_TEXT_SIZE);
         mTextPaint.setTextAlign(Paint.Align.CENTER);
     }
 
@@ -115,6 +116,14 @@ public class EditorText implements ISticker {
     @Override
     public float getScale() {
         return mScale;
+    }
+
+    @Override
+    public float getScale(Rect standardRect) {
+        //有基准尺寸时，计算和默认字体大小的缩放比
+        Rect textRect = new Rect();
+        mTextPaint.getTextBounds(mText, 0, mText.length(), textRect);
+        return mTextRect.width() / mClipRect.width() * standardRect.width() / textRect.width();
     }
 
     @Override

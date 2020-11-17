@@ -100,11 +100,23 @@ public class ImageEditorView extends View implements IEditorView {
     }
 
     @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        if (mApply && mControl.dispatchTouchEvent(event)) {
+            getParent().requestDisallowInterceptTouchEvent(true);
+        }
+        return super.dispatchTouchEvent(event);
+    }
+
+    @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (mApply) {
-            mControl.viewTouched(event);
+            mControl.onTouchEvent(event);
         }
         return true;
+    }
+
+    public void setClipBorderEnable(boolean enable) {
+        this.mApply = enable;
     }
 
     public void switchOriginal() {

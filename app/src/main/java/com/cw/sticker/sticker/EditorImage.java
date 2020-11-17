@@ -121,6 +121,12 @@ public class EditorImage implements ISticker {
     }
 
     @Override
+    public float getScale(Rect standardRect) {
+        //有基准尺寸时，计算和原图的缩放比
+        return mDstRect.width() / mClipRect.width() * standardRect.width() / mBitmap.getWidth();
+    }
+
+    @Override
     public void draw(@NonNull Canvas canvas) {
         canvas.drawBitmap(mBitmap, mMatrix, mPaint);
         if (mIsDrawHelperFrame) drawHelperFrame(canvas);

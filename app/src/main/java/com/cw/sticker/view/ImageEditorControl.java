@@ -39,11 +39,15 @@ public class ImageEditorControl {
         initClipRect(viewState);
     }
 
-    public void viewTouched(MotionEvent event) {
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            return stickerActionDown(event);
+        }
+        return false;
+    }
+
+    public void onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                stickerActionDown(event);
-                break;
             case MotionEvent.ACTION_MOVE:
                 stickerActionMove(event);
                 break;
@@ -120,7 +124,7 @@ public class ImageEditorControl {
         mCurrentMode = EditorMode.NONE;
     }
 
-    private void stickerActionDown(MotionEvent event) {
+    private boolean stickerActionDown(MotionEvent event) {
         for (int i = mStickerList.size() - 1; i >= 0; i--) {
             final ISticker sticker = mStickerList.get(i);
 
@@ -134,20 +138,20 @@ public class ImageEditorControl {
                 mStickerList.add(mStickerList.remove(i));
                 sticker.setHelpFrameEnabled(true);
                 getViewState().updateView();
-                return;
+                return true;
             } else if (sticker.isInDeleteHandleButton(event)) {
                 mTouchedSticker = null;
                 mCurrentMode = EditorMode.NONE;
                 mStickerList.remove(i);
                 getViewState().updateView();
-                return;
+                return true;
             } else if (sticker.isInResizeAndScaleHandleButton(event)) {
                 mTouchedSticker = sticker;
                 mCurrentMode = EditorMode.ROTATE_AND_SCALE;
                 mTouchedSticker.setEditorTouched(true);
                 mLastX = event.getX();
                 mLastY = event.getY();
-                return;
+                return true;
             } else if (sticker.isInEditHandleButton(event)) {
                 mLastX = event.getX();
                 mLastY = event.getY();
@@ -155,7 +159,7 @@ public class ImageEditorControl {
                     EditorText editorText = (EditorText) sticker;
                     showEditDialog(mContext, editorText);
                 }
-                return;
+                return true;
             } else {
                 sticker.setHelpFrameEnabled(false);
                 getViewState().updateView();
@@ -163,6 +167,7 @@ public class ImageEditorControl {
         }
         mTouchedSticker = null;
         mCurrentMode = EditorMode.NONE;
+        return false;
     }
 
     private void stickerActionMove(MotionEvent event) {

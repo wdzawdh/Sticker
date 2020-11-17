@@ -100,41 +100,36 @@
             android:foreground="@drawable/selector_color" />
     </RadioGroup>
 
-    <com.cw.sticker.SquareLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clEditor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="-20dp"
-        android:layout_marginStart="-20dp">
+        android:layout_gravity="center"
+        android:layout_marginStart="-20dp"
+        android:layout_marginEnd="-20dp">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/clEditor"
+        <ImageView
+            android:id="@+id/ivBg"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:src="@mipmap/bg_shirt"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageView
-                android:id="@+id/ivBg"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:adjustViewBounds="true"
-                android:src="@mipmap/bg_shirt"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <com.cw.sticker.view.ImageEditorView
-                android:id="@+id/imageEditor"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:text="Hello World!"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHeight_percent="0.5"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintWidth_percent="0.5" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.cw.sticker.SquareLayout>
+        <com.cw.sticker.view.ImageEditorView
+            android:id="@+id/imageEditor"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintDimensionRatio="520:520"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.5" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

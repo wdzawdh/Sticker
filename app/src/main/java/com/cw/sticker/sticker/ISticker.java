@@ -2,6 +2,7 @@ package com.cw.sticker.sticker;
 
 import android.graphics.Canvas;
 import android.graphics.PointF;
+import android.graphics.Rect;
 import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
@@ -14,6 +15,8 @@ public interface ISticker {
     PointF getPosition();
 
     float getScale();
+
+    float getScale(Rect standardRect);
 
     void setColor(int color);
 
