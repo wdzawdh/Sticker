@@ -1,5 +1,6 @@
 package com.cw.sticker.utils;
 
+import android.graphics.Point;
 import android.graphics.RectF;
 
 public class RectUtil {
@@ -41,5 +42,14 @@ public class RectUtil {
         float dy = newY - y;
 
         rectF.offset(dx, dy);
+    }
+
+    public static void rotatePoint(Point p, float center_x, float center_y, float rotateAngle) {
+        float sinA = (float) Math.sin(Math.toRadians(rotateAngle));
+        float cosA = (float) Math.cos(Math.toRadians(rotateAngle));
+        // calc new point
+        float newX = center_x + (p.x - center_x) * cosA - (p.y - center_y) * sinA;
+        float newY = center_y + (p.y - center_y) * cosA + (p.x - center_x) * sinA;
+        p.set((int) newX, (int) newY);
     }
 }

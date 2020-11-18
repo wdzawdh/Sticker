@@ -33,6 +33,7 @@ public class ImageEditorView extends View implements IEditorView {
 
     private List<ISticker> mStickerList;
     private boolean mApply = true;
+    private boolean mClipBorderEnable = true;
     private boolean mIsOriginalImageDisplayed;
 
     public ImageEditorView(Context context, AttributeSet attrs) {
@@ -53,7 +54,7 @@ public class ImageEditorView extends View implements IEditorView {
         super.onDraw(canvas);
         if (mClipRect != null) {
             canvas.clipRect(mClipRect);
-            if (mApply) {
+            if (mApply&&mClipBorderEnable) {
                 mBorderPaint.setPathEffect(mBorderEffects);
                 canvas.drawRoundRect(mClipRect, 0, 0, mBorderPaint);
             }
@@ -116,7 +117,7 @@ public class ImageEditorView extends View implements IEditorView {
     }
 
     public void setClipBorderEnable(boolean enable) {
-        this.mApply = enable;
+        this.mClipBorderEnable = enable;
     }
 
     public void switchOriginal() {

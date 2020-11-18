@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -242,9 +243,13 @@ public class EditorText implements ISticker {
         }
     }
 
+    private Point mTouchPoint = new Point();
+
     @Override
     public boolean isInside(MotionEvent event) {
-        return mFrameRect.contains(event.getX(), event.getY());
+        mTouchPoint.set((int) event.getX(), (int) event.getY());
+        RectUtil.rotatePoint(mTouchPoint, mFrameRect.centerX(), mFrameRect.centerY(), -mRotateAngle);
+        return mFrameRect.contains(mTouchPoint.x, mTouchPoint.y);
     }
 
     @Override
