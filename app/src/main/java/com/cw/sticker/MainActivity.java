@@ -96,13 +96,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 imageEditor.onApplyChanges();
-                clEditor.setDrawingCacheEnabled(true);
-                Bitmap bitmap = clEditor.getDrawingCache();
+                Bitmap bitmap = BitmapUtil.loadBitmapFromView(clEditor);
                 String path = BitmapUtil.saveBitmap(MainActivity.this, bitmap, "test");
                 if (new File(path).exists()) {
                     Toast.makeText(MainActivity.this, "save success  " + path, Toast.LENGTH_LONG).show();
                 }
-                clEditor.setDrawingCacheEnabled(false);
 
                 //export json
                 CompoundModel compoundModel = new CompoundModel();

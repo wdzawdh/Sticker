@@ -13,6 +13,7 @@ import android.graphics.drawable.VectorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
+import android.view.View;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -23,6 +24,21 @@ import androidx.annotation.RequiresApi;
 import androidx.core.content.res.ResourcesCompat;
 
 public class BitmapUtil {
+
+    /**
+     * 替代getDrawingCache方法
+     */
+    public static  Bitmap loadBitmapFromView(View v) {
+        if (v == null) {
+            return null;
+        }
+        Bitmap screenshot;
+        screenshot = Bitmap.createBitmap(v.getWidth(), v.getHeight(), Bitmap.Config.RGB_565);
+        Canvas c = new Canvas(screenshot);
+        c.translate(-v.getScrollX(), -v.getScrollY());
+        v.draw(c);
+        return screenshot;
+    }
 
     public static String saveBitmap(Context ct, Bitmap bitmap, String name) {
         String savePath = ct.getExternalFilesDir(null) + "/" + name + ".jpg";
