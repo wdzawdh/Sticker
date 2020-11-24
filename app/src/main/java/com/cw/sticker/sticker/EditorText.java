@@ -2,7 +2,6 @@ package com.cw.sticker.sticker;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.PointF;
@@ -16,34 +15,35 @@ import com.cw.sticker.utils.RectUtil;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 
-import static com.cw.sticker.sticker.EditorFrame.EDITOR_FRAME_PADDING;
-
 
 public class EditorText implements ISticker {
-    private static final float DEFAULT_TEXT_SIZE = 32;
+    private static final float DEFAULT_TEXT_SIZE = 32.8f; //对应h5的32，调整的0.8
 
     private EditorFrame mEditorFrame;
     private Paint mHelperFramePaint;
     private TextPaint mTextPaint;
 
-    private RectF mClipRect;
     private Rect mTextRect;
     private RectF mFrameRect;
 
     private Rect mDeleteHandleSrcRect;
+    private Rect mScaleHandleSrcRect;
+    private Rect mRotateHandleSrcRect;
     private Rect mFrontHandleSrcRect;
-    private Rect mResizeAndScaleHandleSrcRect;
 
     private RectF mDeleteHandleDstRect;
+    private RectF mScaleHandleDstRect;
+    private RectF mRotateHandleDstRect;
     private RectF mFrontHandleDstRect;
-    private RectF mResizeAndScaleHandleDstRect;
 
     private String mText;
-    private int mColor = Color.BLACK;
+    private int mColor;
+    private RectF mClipRect;
     private float mX;
     private float mY;
     private float mScale = 1;
     private float mRotateAngle = 0;
+    private Point mTouchPoint = new Point();
     private boolean mIsDrawHelperFrame = true;
 
     public EditorText(Context context, String text, @ColorInt int color, RectF clipRect) {
@@ -64,15 +64,18 @@ public class EditorText implements ISticker {
 
         mDeleteHandleSrcRect = new Rect(0, 0, mEditorFrame.getDeleteHandleBitmap().getWidth(),
                 mEditorFrame.getDeleteHandleBitmap().getHeight());
-        mResizeAndScaleHandleSrcRect = new Rect(0, 0, mEditorFrame.getResizeHandleBitmap().getWidth(),
+        mScaleHandleSrcRect = new Rect(0, 0, mEditorFrame.getResizeHandleBitmap().getWidth(),
                 mEditorFrame.getResizeHandleBitmap().getHeight());
+        mRotateHandleSrcRect = new Rect(0, 0, mEditorFrame.getRotateHandleBitmap().getWidth(),
+                mEditorFrame.getRotateHandleBitmap().getHeight());
         mFrontHandleSrcRect = new Rect(0, 0, mEditorFrame.getFrontHandleBitmap().getWidth(),
                 mEditorFrame.getFrontHandleBitmap().getHeight());
 
-        int handleHalfSize = mEditorFrame.getDeleteHandleBitmap().getWidth() / 2;
+        int handleHalfSize = mEditorFrame.getDeleteHandleBitmap().getWidth() >> 1;
 
         mDeleteHandleDstRect = new RectF(0, 0, handleHalfSize << 1, handleHalfSize << 1);
-        mResizeAndScaleHandleDstRect = new RectF(0, 0, handleHalfSize << 1, handleHalfSize << 1);
+        mScaleHandleDstRect = new RectF(0, 0, handleHalfSize << 1, handleHalfSize << 1);
+        mRotateHandleDstRect = new RectF(0, 0, handleHalfSize << 1, handleHalfSize << 1);
         mFrontHandleDstRect = new RectF(0, 0, handleHalfSize << 1, handleHalfSize << 1);
     }
 
@@ -81,7 +84,6 @@ public class EditorText implements ISticker {
         mTextPaint.setAntiAlias(true);
         mTextPaint.setColor(mColor);
         mTextPaint.setAlpha(255);
-
         mTextPaint.setTextSize(DEFAULT_TEXT_SIZE);
         mTextPaint.setTextAlign(Paint.Align.CENTER);
     }
@@ -121,10 +123,8 @@ public class EditorText implements ISticker {
 
     @Override
     public float getScale(Rect standardRect) {
-        //有基准尺寸时，计算和默认字体大小的缩放比
-        Rect textRect = new Rect();
-        mTextPaint.getTextBounds(mText, 0, mText.length(), textRect);
-        return mTextRect.width() / mClipRect.width() * standardRect.width() / textRect.width();
+        //有基准宽度时，计算和默认字体大小的缩放比
+        return mScale / mClipRect.width() * standardRect.width();
     }
 
     @Override
@@ -152,13 +152,17 @@ public class EditorText implements ISticker {
         int offsetValue = ((int) mDeleteHandleDstRect.width()) >> 1;
 
         mDeleteHandleDstRect.offsetTo(mFrameRect.left - offsetValue, mFrameRect.top - offsetValue);
-        mResizeAndScaleHandleDstRect.offsetTo(mFrameRect.right - offsetValue, mFrameRect.bottom - offsetValue);
+        mScaleHandleDstRect.offsetTo(mFrameRect.right - offsetValue, mFrameRect.bottom - offsetValue);
+        mRotateHandleDstRect.offsetTo(mFrameRect.right - offsetValue, mFrameRect.top - offsetValue);
         mFrontHandleDstRect.offsetTo(mFrameRect.left - offsetValue, mFrameRect.bottom - offsetValue);
 
         RectUtil.rotateRect(mDeleteHandleDstRect, mFrameRect.centerX(),
                 mFrameRect.centerY(), mRotateAngle);
 
-        RectUtil.rotateRect(mResizeAndScaleHandleDstRect, mFrameRect.centerX(),
+        RectUtil.rotateRect(mScaleHandleDstRect, mFrameRect.centerX(),
+                mFrameRect.centerY(), mRotateAngle);
+
+        RectUtil.rotateRect(mRotateHandleDstRect, mFrameRect.centerX(),
                 mFrameRect.centerY(), mRotateAngle);
 
         RectUtil.rotateRect(mFrontHandleDstRect, mFrameRect.centerX(),
@@ -172,16 +176,18 @@ public class EditorText implements ISticker {
         canvas.drawBitmap(mEditorFrame.getDeleteHandleBitmap(),
                 mDeleteHandleSrcRect, mDeleteHandleDstRect, null);
         canvas.drawBitmap(mEditorFrame.getResizeHandleBitmap(),
-                mResizeAndScaleHandleSrcRect, mResizeAndScaleHandleDstRect, null);
+                mScaleHandleSrcRect, mScaleHandleDstRect, null);
+        canvas.drawBitmap(mEditorFrame.getRotateHandleBitmap(),
+                mRotateHandleSrcRect, mRotateHandleDstRect, null);
         canvas.drawBitmap(mEditorFrame.getFrontHandleBitmap(),
                 mFrontHandleSrcRect, mFrontHandleDstRect, null);
     }
 
     private void updateFrameRect() {
-        mFrameRect.left -= EDITOR_FRAME_PADDING;
-        mFrameRect.right += EDITOR_FRAME_PADDING;
-        mFrameRect.top -= EDITOR_FRAME_PADDING;
-        mFrameRect.bottom += EDITOR_FRAME_PADDING;
+        mFrameRect.left -= EditorFrame.EDITOR_FRAME_PADDING;
+        mFrameRect.right += EditorFrame.EDITOR_FRAME_PADDING;
+        mFrameRect.top -= EditorFrame.EDITOR_FRAME_PADDING;
+        mFrameRect.bottom += EditorFrame.EDITOR_FRAME_PADDING;
     }
 
     @Override
@@ -191,12 +197,12 @@ public class EditorText implements ISticker {
     }
 
     @Override
-    public void updateRotateAndScale(float distanceX, float distanceY) {
+    public void updateScale(float distanceX, float distanceY) {
         float frameCenterX = mFrameRect.centerX();
         float frameCenterY = mFrameRect.centerY();
 
-        float handleCenterX = mResizeAndScaleHandleDstRect.centerX();
-        float handleCenterY = mResizeAndScaleHandleDstRect.centerY();
+        float handleCenterX = mScaleHandleDstRect.centerX();
+        float handleCenterY = mScaleHandleDstRect.centerY();
 
         float newX = handleCenterX + distanceX;
         float newY = handleCenterY + distanceY;
@@ -207,10 +213,10 @@ public class EditorText implements ISticker {
         float xb = newX - frameCenterX;
         float yb = newY - frameCenterY;
 
-        float sourceLength = (float) Math.sqrt(Math.pow(xa, 2) + Math.pow(ya, 2));
-        float currentLength = (float) Math.sqrt(Math.pow(xb, 2) + Math.pow(yb, 2));
+        float srcLen = (float) Math.sqrt(xa * xa + ya * ya);
+        float curLen = (float) Math.sqrt(xb * xb + yb * yb);
 
-        float scale = currentLength / sourceLength;
+        float scale = curLen / srcLen;
 
         mScale *= scale;
 
@@ -218,11 +224,29 @@ public class EditorText implements ISticker {
 
         if (newWidth < 70) {
             mScale /= scale;
-            return;
         }
+    }
+
+    @Override
+    public void updateRotate(float newX, float newY) {
+        float frameCenterX = mFrameRect.centerX();
+        float frameCenterY = mFrameRect.centerY();
+
+        float handleCenterX = mRotateHandleDstRect.centerX();
+        float handleCenterY = mRotateHandleDstRect.centerY();
+
+        float xa = handleCenterX - frameCenterX;
+        float ya = handleCenterY - frameCenterY;
+
+        float xb = newX - frameCenterX;
+        float yb = newY - frameCenterY;
+
+        float srcLen = (float) Math.sqrt(xa * xa + ya * ya);
+        float curLen = (float) Math.sqrt(xb * xb + yb * yb);
 
         //cosθ = (a·b) / (|a|*|b|)
-        double cos = (xa * xb + ya * yb) / (sourceLength * currentLength);
+        float dot = xa * xb + ya * yb;
+        double cos = dot / (srcLen * curLen);
         if (cos > 1 || cos < -1) return;
         float angle = (float) Math.toDegrees(Math.acos(cos));
 
@@ -243,8 +267,6 @@ public class EditorText implements ISticker {
         }
     }
 
-    private Point mTouchPoint = new Point();
-
     @Override
     public boolean isInside(MotionEvent event) {
         mTouchPoint.set((int) event.getX(), (int) event.getY());
@@ -263,8 +285,13 @@ public class EditorText implements ISticker {
     }
 
     @Override
-    public boolean isInResizeAndScaleHandleButton(MotionEvent event) {
-        return mResizeAndScaleHandleDstRect.contains(event.getX(), event.getY());
+    public boolean isInScaleHandleButton(MotionEvent event) {
+        return mScaleHandleDstRect.contains(event.getX(), event.getY());
+    }
+
+    @Override
+    public boolean isInRotateHandleButton(MotionEvent event) {
+        return mRotateHandleDstRect.contains(event.getX(), event.getY());
     }
 
     @Override

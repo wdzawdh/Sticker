@@ -4,13 +4,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.RectF;
+import android.text.TextUtils;
 import android.view.MotionEvent;
 
 import com.cw.sticker.enums.EditorMode;
 import com.cw.sticker.sticker.EditorImage;
 import com.cw.sticker.sticker.EditorText;
 import com.cw.sticker.sticker.ISticker;
-import com.cw.sticker.utils.LogHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,15 +72,12 @@ public class ImageEditorControl {
             mImageBitmap = bitmap;
         }
         RectF viewRect = new RectF(0, 0, width, height);
-        LogHelper.logRect("mViewRect", viewRect);
 
         mImageMatrix.reset();
         mClipRect = new RectF(0, 0, bitmap.getWidth(), bitmap.getHeight());
         mImageMatrix.setRectToRect(mClipRect, viewRect, Matrix.ScaleToFit.CENTER);
         mImageMatrix.mapRect(mClipRect);
         mTransformMatrix.set(mImageMatrix);
-        LogHelper.logRect("mClipRect", mClipRect);
-        LogHelper.logMatrix("mImageMatrix", mImageMatrix);
 
         getViewState().setClipRect(mClipRect);
         getViewState().setupImage(bitmap, mImageMatrix);
@@ -93,6 +90,7 @@ public class ImageEditorControl {
     }
 
     void addText(String text, int color) {
+        if (mClipRect == null) return;
         EditorText editorText = new EditorText(mContext, text, color, mClipRect);
         mStickerList.add(editorText);
         if (mTouchedSticker != null) mTouchedSticker.setHelpFrameEnabled(false);
@@ -101,14 +99,20 @@ public class ImageEditorControl {
     }
 
     void addImage(Bitmap bitmap) {
-        mStickerList.add(new EditorImage(mContext, bitmap, mClipRect));
+        if (mClipRect == null) return;
+        EditorImage editorImage = new EditorImage(mContext, bitmap, mClipRect);
+        //editorImage.setBitmapAlias(alias);
+        mStickerList.add(editorImage);
         if (mTouchedSticker != null) mTouchedSticker.setHelpFrameEnabled(false);
         mTouchedSticker = mStickerList.get(mStickerList.size() - 1);
         getViewState().onStickerAdded(mStickerList);
     }
 
     void addImage(Bitmap bitmap, int color) {
-        mStickerList.add(new EditorImage(mContext, bitmap, color, mClipRect));
+        if (mClipRect == null) return;
+        EditorImage editorImage = new EditorImage(mContext, bitmap, color, mClipRect);
+        //editorImage.setBitmapAlias(alias);
+        mStickerList.add(editorImage);
         if (mTouchedSticker != null) mTouchedSticker.setHelpFrameEnabled(false);
         mTouchedSticker = mStickerList.get(mStickerList.size() - 1);
         getViewState().onStickerAdded(mStickerList);
@@ -145,16 +149,21 @@ public class ImageEditorControl {
                 mStickerList.remove(i);
                 getViewState().updateView();
                 return true;
-            } else if (sticker.isInResizeAndScaleHandleButton(event)) {
+            } else if (sticker.isInScaleHandleButton(event)) {
                 mTouchedSticker = sticker;
-                mCurrentMode = EditorMode.ROTATE_AND_SCALE;
+                mCurrentMode = EditorMode.SCALE;
                 mTouchedSticker.setEditorTouched(true);
                 mLastX = event.getX();
                 mLastY = event.getY();
                 return true;
+            } else if (sticker.isInRotateHandleButton(event)) {
+                mTouchedSticker = sticker;
+                mCurrentMode = EditorMode.ROTATE;
+                mTouchedSticker.setEditorTouched(true);
+                return true;
             } else if (sticker.isInEditHandleButton(event)) {
-                mLastX = event.getX();
-                mLastY = event.getY();
+                mTouchedSticker = null;
+                mCurrentMode = EditorMode.NONE;
                 if (sticker instanceof EditorText) {
                     EditorText editorText = (EditorText) sticker;
                     showEditDialog(mContext, editorText);
@@ -178,10 +187,13 @@ public class ImageEditorControl {
                     mLastX = event.getX();
                     mLastY = event.getY();
                     break;
-                case ROTATE_AND_SCALE:
-                    mTouchedSticker.updateRotateAndScale(getDeltaX(event), getDeltaY(event));
+                case SCALE:
+                    mTouchedSticker.updateScale(getDeltaX(event), getDeltaY(event));
                     mLastX = event.getX();
                     mLastY = event.getY();
+                    break;
+                case ROTATE:
+                    mTouchedSticker.updateRotate(event.getX(), event.getY());
                     break;
             }
             getViewState().updateView();
@@ -212,7 +224,9 @@ public class ImageEditorControl {
         editTextDialog.setOnEditListener(new EditTextDialog.OnEditListener() {
             @Override
             public void onEditText(String value) {
-                editorText.setText(value);
+                if (!TextUtils.isEmpty(value)) {
+                    editorText.setText(value);
+                }
             }
         });
     }

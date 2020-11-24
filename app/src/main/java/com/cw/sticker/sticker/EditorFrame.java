@@ -6,7 +6,6 @@ import android.graphics.Paint;
 
 import com.cw.sticker.R;
 import com.cw.sticker.utils.BitmapUtil;
-import com.cw.sticker.utils.LogHelper;
 
 
 public class EditorFrame {
@@ -16,6 +15,7 @@ public class EditorFrame {
 
     private Bitmap mDeleteHandleBitmap;
     private Bitmap mResizeHandleBitmap;
+    private Bitmap mRotateHandleBitmap;
     private Bitmap mFrontHandleBitmap;
 
     public EditorFrame(Context context) {
@@ -36,12 +36,9 @@ public class EditorFrame {
 
     private void initializeHandlesBitmap(Context context) {
         mDeleteHandleBitmap = BitmapUtil.drawable2Bitmap(context, R.mipmap.ic_handle_delete);
-        mResizeHandleBitmap = BitmapUtil.drawable2Bitmap(context, R.mipmap.ic_handle_scale_rotate);
+        mResizeHandleBitmap = BitmapUtil.drawable2Bitmap(context, R.mipmap.ic_handle_scale);
+        mRotateHandleBitmap = BitmapUtil.drawable2Bitmap(context, R.mipmap.ic_handle_rotate);
         mFrontHandleBitmap = BitmapUtil.drawable2Bitmap(context, R.mipmap.ic_handle_front);
-
-        LogHelper.logBitmap("mDeleteHandleBitmap", mDeleteHandleBitmap);
-        LogHelper.logBitmap("mResizeHandleBitmap", mResizeHandleBitmap);
-        LogHelper.logBitmap("mFrontHandleBitmap", mFrontHandleBitmap);
     }
 
     public Paint getFramePaint() {
@@ -54,6 +51,10 @@ public class EditorFrame {
 
     public Bitmap getResizeHandleBitmap() {
         return mResizeHandleBitmap;
+    }
+
+    public Bitmap getRotateHandleBitmap() {
+        return mRotateHandleBitmap;
     }
 
     public Bitmap getFrontHandleBitmap() {

@@ -26,7 +26,9 @@ public interface ISticker {
 
     void actionMove(float dx, float dy);
 
-    void updateRotateAndScale(final float dx, final float dy);
+    void updateScale(final float dx, final float dy);
+
+    void updateRotate(final float dx, final float dy);
 
     boolean isInside(MotionEvent event);
 
@@ -34,7 +36,9 @@ public interface ISticker {
 
     boolean isInEditHandleButton(MotionEvent event);
 
-    boolean isInResizeAndScaleHandleButton(MotionEvent event);
+    boolean isInScaleHandleButton(MotionEvent event);
+
+    boolean isInRotateHandleButton(MotionEvent event);
 
     void setHelpFrameEnabled(boolean enabled);
 }
