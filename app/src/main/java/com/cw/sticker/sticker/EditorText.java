@@ -17,11 +17,13 @@ import androidx.annotation.NonNull;
 
 
 public class EditorText implements ISticker {
-    private static final float DEFAULT_TEXT_SIZE = 32.8f; //对应h5的32，调整的0.8
+    private static final float DEFAULT_TEXT_SIZE = 32f;
 
-    private EditorFrame mEditorFrame;
-    private Paint mHelperFramePaint;
-    private TextPaint mTextPaint;
+    private final EditorFrame mEditorFrame;
+    private final Paint mHelperFramePaint;
+    private final int mColor;
+    private final RectF mClipRect;
+    private final Point mTouchPoint = new Point();
 
     private Rect mTextRect;
     private RectF mFrameRect;
@@ -36,14 +38,12 @@ public class EditorText implements ISticker {
     private RectF mRotateHandleDstRect;
     private RectF mFrontHandleDstRect;
 
+    private TextPaint mTextPaint;
     private String mText;
-    private int mColor;
-    private RectF mClipRect;
     private float mX;
     private float mY;
     private float mScale = 1;
     private float mRotateAngle = 0;
-    private Point mTouchPoint = new Point();
     private boolean mIsDrawHelperFrame = true;
 
     public EditorText(Context context, String text, @ColorInt int color, RectF clipRect) {
@@ -97,6 +97,13 @@ public class EditorText implements ISticker {
     }
 
     @Override
+    public void setStandardRect(Rect standardRect) {
+        if (standardRect != null) {
+            mTextPaint.setTextSize(DEFAULT_TEXT_SIZE * mClipRect.width() / standardRect.width());
+        }
+    }
+
+    @Override
     public void setColor(int color) {
         mTextPaint.setColor(color);
     }
@@ -119,12 +126,6 @@ public class EditorText implements ISticker {
     @Override
     public float getScale() {
         return mScale;
-    }
-
-    @Override
-    public float getScale(Rect standardRect) {
-        //有基准宽度时，计算和默认字体大小的缩放比
-        return mScale / mClipRect.width() * standardRect.width();
     }
 
     @Override

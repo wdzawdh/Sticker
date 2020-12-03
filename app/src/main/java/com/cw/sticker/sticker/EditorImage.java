@@ -24,15 +24,15 @@ public class EditorImage implements ISticker {
     private static final float MIN_SCALE = 0.15f;
     private static final int BUTTON_WIDTH = 30;
 
-    private EditorFrame mEditorFrame;
-    private Bitmap mBitmap;
-    private Matrix mMatrix;
-    private Paint mPaint;
-    private Paint mHelperFramePaint;
+    private final EditorFrame mEditorFrame;
+    private final Point mTouchPoint = new Point();
+    private final Paint mPaint;
+    private final Paint mHelperFramePaint;
+    private final RectF mClipRect;
 
-    private RectF mClipRect;
     private RectF mDstRect;
     private RectF mFrameRect;
+    private Rect mStandardRect;
 
     private Rect mDeleteHandleSrcRect;
     private Rect mScaleHandleSrcRect;
@@ -42,10 +42,11 @@ public class EditorImage implements ISticker {
     private RectF mScaleHandleDstRect;
     private RectF mRotateHandleDstRect;
 
+    private Bitmap mBitmap;
+    private Matrix mMatrix;
     private float mRotateAngle;
     private float mInitWidth;
     private int mColor = -1;
-    private Point mTouchPoint = new Point();
     private boolean mIsDrawHelperFrame = true;
     private String mAlias;
 
@@ -101,6 +102,11 @@ public class EditorImage implements ISticker {
     }
 
     @Override
+    public void setStandardRect(Rect standardRect) {
+        mStandardRect = standardRect;
+    }
+
+    @Override
     public void setColor(int color) {
         mColor = color;
         mBitmap = BitmapUtil.makeTintBitmap(mBitmap, color);
@@ -123,13 +129,10 @@ public class EditorImage implements ISticker {
 
     @Override
     public float getScale() {
+        if (mStandardRect != null) {
+            return mDstRect.width() / mClipRect.width() * mStandardRect.width() / mBitmap.getWidth();
+        }
         return mDstRect.width() / mInitWidth;
-    }
-
-    @Override
-    public float getScale(Rect standardRect) {
-        //有基准宽度时，计算和原图的缩放比
-        return mDstRect.width() / mClipRect.width() * standardRect.width() / mBitmap.getWidth();
     }
 
     @Override

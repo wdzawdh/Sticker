@@ -10,13 +10,13 @@ import androidx.annotation.NonNull;
 public interface ISticker {
     void draw(@NonNull Canvas canvas);
 
+    void setStandardRect(Rect standardRect);
+
     float getRotate();
 
     PointF getPosition();
 
     float getScale();
-
-    float getScale(Rect standardRect);
 
     void setColor(int color);
 

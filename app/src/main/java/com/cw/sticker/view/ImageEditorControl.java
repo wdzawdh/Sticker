@@ -132,18 +132,7 @@ public class ImageEditorControl {
         for (int i = mStickerList.size() - 1; i >= 0; i--) {
             final ISticker sticker = mStickerList.get(i);
 
-            if (sticker.isInside(event)) {
-                mTouchedSticker = sticker;
-                mCurrentMode = EditorMode.MOVE;
-                mTouchedSticker.setEditorTouched(true);
-                mLastX = event.getX();
-                mLastY = event.getY();
-                //move to first
-                mStickerList.add(mStickerList.remove(i));
-                sticker.setHelpFrameEnabled(true);
-                getViewState().updateView();
-                return true;
-            } else if (sticker.isInDeleteHandleButton(event)) {
+            if (sticker.isInDeleteHandleButton(event)) {
                 mTouchedSticker = null;
                 mCurrentMode = EditorMode.NONE;
                 mStickerList.remove(i);
@@ -168,6 +157,17 @@ public class ImageEditorControl {
                     EditorText editorText = (EditorText) sticker;
                     showEditDialog(mContext, editorText);
                 }
+                return true;
+            } else if (sticker.isInside(event)) {
+                mTouchedSticker = sticker;
+                mCurrentMode = EditorMode.MOVE;
+                mTouchedSticker.setEditorTouched(true);
+                mLastX = event.getX();
+                mLastY = event.getY();
+                //move to first
+                mStickerList.add(mStickerList.remove(i));
+                sticker.setHelpFrameEnabled(true);
+                getViewState().updateView();
                 return true;
             } else {
                 sticker.setHelpFrameEnabled(false);
