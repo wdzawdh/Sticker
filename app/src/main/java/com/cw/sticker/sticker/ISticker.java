@@ -41,4 +41,6 @@ public interface ISticker {
     boolean isInRotateHandleButton(MotionEvent event);
 
     void setHelpFrameEnabled(boolean enabled);
+
+    boolean getHelpFrameEnabled();
 }

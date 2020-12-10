@@ -338,4 +338,9 @@ public class EditorImage implements ISticker {
     public void setHelpFrameEnabled(boolean enabled) {
         mIsDrawHelperFrame = enabled;
     }
+
+    @Override
+    public boolean getHelpFrameEnabled() {
+        return mIsDrawHelperFrame;
+    }
 }
