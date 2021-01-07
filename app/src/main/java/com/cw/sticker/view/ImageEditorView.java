@@ -22,14 +22,14 @@ import androidx.annotation.NonNull;
 
 public class ImageEditorView extends View implements IEditorView {
 
-    private ImageEditorControl mControl;
+    private final ImageEditorControl mControl;
     private Bitmap mImageBitmap;
     private Bitmap mAlteredImageBitmap;
     private Matrix mImageMatrix;
     private RectF mClipRect;
-    private Paint mBitmapPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private Paint mBorderPaint = new Paint();
-    private PathEffect mBorderEffects = new DashPathEffect(new float[]{10, 10}, 0);
+    private final Paint mBitmapPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint mBorderPaint = new Paint();
+    private final PathEffect mBorderEffects = new DashPathEffect(new float[]{10, 10}, 0);
 
     private List<ISticker> mStickerList;
     private boolean mApply = true;

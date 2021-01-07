@@ -20,7 +20,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 
 
-public class EditorImage implements ISticker {
+public class EditorImage implements ITouchSticker {
     private static final float MIN_SCALE = 0.15f;
     private static final int BUTTON_WIDTH = 30;
 
@@ -205,7 +205,7 @@ public class EditorImage implements ISticker {
     }
 
     @Override
-    public void actionMove(float dx, float dy) {
+    public void updateMove(float dx, float dy) {
         mMatrix.postTranslate(dx, dy);
 
         mDstRect.offset(dx, dy);

@@ -11,6 +11,7 @@ import com.cw.sticker.enums.EditorMode;
 import com.cw.sticker.sticker.EditorImage;
 import com.cw.sticker.sticker.EditorText;
 import com.cw.sticker.sticker.ISticker;
+import com.cw.sticker.sticker.ITouchSticker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,19 +20,19 @@ import androidx.annotation.NonNull;
 
 public class ImageEditorControl {
 
-    private Context mContext;
-    private IEditorView mViewState;
-    private ISticker mTouchedSticker;
+    private final Context mContext;
+    private final IEditorView mViewState;
+    private ITouchSticker mTouchedSticker;
     private EditorMode mCurrentMode = EditorMode.NONE;
 
     private float mLastX;
     private float mLastY;
     private RectF mClipRect;
     private Bitmap mImageBitmap;
-    private Matrix mImageMatrix = new Matrix();
-    private Matrix mTransformMatrix = new Matrix();
+    private final Matrix mImageMatrix = new Matrix();
+    private final Matrix mTransformMatrix = new Matrix();
 
-    private List<ISticker> mStickerList = new ArrayList<>();
+    private final List<ISticker> mStickerList = new ArrayList<>();
 
     ImageEditorControl(@NonNull Context context, final ImageEditorView viewState) {
         mContext = context;
@@ -93,8 +94,10 @@ public class ImageEditorControl {
         if (mClipRect == null) return;
         EditorText editorText = new EditorText(mContext, text, color, mClipRect);
         mStickerList.add(editorText);
-        if (mTouchedSticker != null) mTouchedSticker.setHelpFrameEnabled(false);
-        mTouchedSticker = mStickerList.get(mStickerList.size() - 1);
+        if (mTouchedSticker != null) {
+            mTouchedSticker.setHelpFrameEnabled(false);
+        }
+        mTouchedSticker = editorText;
         getViewState().onStickerAdded(mStickerList);
     }
 
@@ -103,8 +106,10 @@ public class ImageEditorControl {
         EditorImage editorImage = new EditorImage(mContext, bitmap, mClipRect);
         //editorImage.setBitmapAlias(alias);
         mStickerList.add(editorImage);
-        if (mTouchedSticker != null) mTouchedSticker.setHelpFrameEnabled(false);
-        mTouchedSticker = mStickerList.get(mStickerList.size() - 1);
+        if (mTouchedSticker != null) {
+            mTouchedSticker.setHelpFrameEnabled(false);
+        }
+        mTouchedSticker = editorImage;
         getViewState().onStickerAdded(mStickerList);
     }
 
@@ -113,16 +118,21 @@ public class ImageEditorControl {
         EditorImage editorImage = new EditorImage(mContext, bitmap, color, mClipRect);
         //editorImage.setBitmapAlias(alias);
         mStickerList.add(editorImage);
-        if (mTouchedSticker != null) mTouchedSticker.setHelpFrameEnabled(false);
-        mTouchedSticker = mStickerList.get(mStickerList.size() - 1);
+        if (mTouchedSticker != null) {
+            mTouchedSticker.setHelpFrameEnabled(false);
+        }
+        mTouchedSticker = editorImage;
         getViewState().onStickerAdded(mStickerList);
     }
 
     void clearSelectState() {
         for (int i = mStickerList.size() - 1; i >= 0; i--) {
             ISticker sticker = mStickerList.get(i);
-            sticker.setHelpFrameEnabled(false);
-            getViewState().updateView();
+            if (sticker instanceof ITouchSticker) {
+                ITouchSticker touchSticker = (ITouchSticker) sticker;
+                touchSticker.setHelpFrameEnabled(false);
+                getViewState().updateView();
+            }
         }
         mTouchedSticker = null;
         mCurrentMode = EditorMode.NONE;
@@ -131,47 +141,49 @@ public class ImageEditorControl {
     private boolean stickerActionDown(MotionEvent event) {
         for (int i = mStickerList.size() - 1; i >= 0; i--) {
             final ISticker sticker = mStickerList.get(i);
-
-            if (sticker.isInDeleteHandleButton(event) && sticker.getHelpFrameEnabled()) {
-                mTouchedSticker = null;
-                mCurrentMode = EditorMode.NONE;
-                mStickerList.remove(i);
-                getViewState().updateView();
-                return true;
-            } else if (sticker.isInScaleHandleButton(event) && sticker.getHelpFrameEnabled()) {
-                mTouchedSticker = sticker;
-                mCurrentMode = EditorMode.SCALE;
-                mTouchedSticker.setEditorTouched(true);
-                mLastX = event.getX();
-                mLastY = event.getY();
-                return true;
-            } else if (sticker.isInRotateHandleButton(event) && sticker.getHelpFrameEnabled()) {
-                mTouchedSticker = sticker;
-                mCurrentMode = EditorMode.ROTATE;
-                mTouchedSticker.setEditorTouched(true);
-                return true;
-            } else if (sticker.isInEditHandleButton(event) && sticker.getHelpFrameEnabled()) {
-                mTouchedSticker = null;
-                mCurrentMode = EditorMode.NONE;
-                if (sticker instanceof EditorText) {
-                    EditorText editorText = (EditorText) sticker;
-                    showEditDialog(mContext, editorText);
+            if (sticker instanceof ITouchSticker) {
+                ITouchSticker touchSticker = (ITouchSticker) sticker;
+                if (touchSticker.getHelpFrameEnabled() && touchSticker.isInDeleteHandleButton(event)) {
+                    mTouchedSticker = null;
+                    mCurrentMode = EditorMode.NONE;
+                    mStickerList.remove(i);
+                    getViewState().updateView();
+                    return true;
+                } else if (touchSticker.getHelpFrameEnabled() && touchSticker.isInScaleHandleButton(event)) {
+                    mTouchedSticker = touchSticker;
+                    mCurrentMode = EditorMode.SCALE;
+                    mTouchedSticker.setEditorTouched(true);
+                    mLastX = event.getX();
+                    mLastY = event.getY();
+                    return true;
+                } else if (touchSticker.getHelpFrameEnabled() && touchSticker.isInRotateHandleButton(event)) {
+                    mTouchedSticker = touchSticker;
+                    mCurrentMode = EditorMode.ROTATE;
+                    mTouchedSticker.setEditorTouched(true);
+                    return true;
+                } else if (touchSticker.getHelpFrameEnabled() && touchSticker.isInEditHandleButton(event)) {
+                    mTouchedSticker = null;
+                    mCurrentMode = EditorMode.NONE;
+                    if (sticker instanceof EditorText) {
+                        EditorText editorText = (EditorText) sticker;
+                        showEditDialog(mContext, editorText);
+                    }
+                    return true;
+                } else if (touchSticker.isInside(event)) {
+                    mTouchedSticker = touchSticker;
+                    mCurrentMode = EditorMode.MOVE;
+                    mTouchedSticker.setEditorTouched(true);
+                    mLastX = event.getX();
+                    mLastY = event.getY();
+                    //move to first
+                    mStickerList.add(mStickerList.remove(i));
+                    touchSticker.setHelpFrameEnabled(true);
+                    getViewState().updateView();
+                    return true;
+                } else {
+                    touchSticker.setHelpFrameEnabled(false);
+                    getViewState().updateView();
                 }
-                return true;
-            } else if (sticker.isInside(event)) {
-                mTouchedSticker = sticker;
-                mCurrentMode = EditorMode.MOVE;
-                mTouchedSticker.setEditorTouched(true);
-                mLastX = event.getX();
-                mLastY = event.getY();
-                //move to first
-                mStickerList.add(mStickerList.remove(i));
-                sticker.setHelpFrameEnabled(true);
-                getViewState().updateView();
-                return true;
-            } else {
-                sticker.setHelpFrameEnabled(false);
-                getViewState().updateView();
             }
         }
         mTouchedSticker = null;
@@ -183,7 +195,7 @@ public class ImageEditorControl {
         if (mTouchedSticker != null) {
             switch (mCurrentMode) {
                 case MOVE:
-                    mTouchedSticker.actionMove(getDeltaX(event), getDeltaY(event));
+                    mTouchedSticker.updateMove(getDeltaX(event), getDeltaY(event));
                     mLastX = event.getX();
                     mLastY = event.getY();
                     break;

@@ -16,7 +16,7 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 
 
-public class EditorText implements ISticker {
+public class EditorText implements ITouchSticker {
     private static final float DEFAULT_TEXT_SIZE = 32f;
 
     private final EditorFrame mEditorFrame;
@@ -192,7 +192,7 @@ public class EditorText implements ISticker {
     }
 
     @Override
-    public void actionMove(float dx, float dy) {
+    public void updateMove(float dx, float dy) {
         mX += dx;
         mY += dy;
     }
